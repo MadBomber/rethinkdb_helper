@@ -20,6 +20,10 @@ Gem::Specification.new do |spec|
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.require_paths = ["lib"]
 
+  if spec.respond_to?(:metadata)
+    spec.metadata['allowed_push_host'] = 'https://rubygems.org'
+  end
+
   spec.add_development_dependency "bundler", "~> 1.8"
   spec.add_development_dependency "rake", "~> 10.0"
 
