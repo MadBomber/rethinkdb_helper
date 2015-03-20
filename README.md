@@ -1,8 +1,8 @@
 # RethinkdbHelper
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/rethinkdb_helper`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+My convention as a wrapper around the rethinkdb gem.
+Under Development.
+Don't use it.
 
 ## Installation
 
@@ -22,7 +22,20 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+  db = RethinkdbHelper.new(
+    host:   'localhost',  # default
+    port:   28015,        # default
+    db:     'test',       # default
+    table:  'test',       # default
+    create_if_missing: true   # created db/table if they are missing
+  )
+  db.insert(json_documents) # takes array of hashes or json
+  cursor = db.search(:field_name, field_value_regex)
+  puts cursor.count
+  cursor.each {|d| ap d}
+  etc.
+```
 
 ## Development
 
