@@ -7,10 +7,13 @@
 # TODO: Review the nobrainer gem to see if this stuff is moot
 #
 
+require 'forwardable'
+
 require 'rethinkdb'
 
 class RethinkdbHelper
   include RethinkDB::Shortcuts
+  extend Forwardable
 
   DEFAULTS = {
     host:               ENV['RDB_HOST']     || 'localhost',
@@ -24,13 +27,17 @@ class RethinkdbHelper
 
   # TODO: Pass some methods to r for fullfillment
   #       connect, db, table
+  #def_delegators :r, :connect, :db, :table
 
   # TODO: Pass some methods to @commection for fulfillment
   #       close, reconnect, use, noreply_wait
+  def_delegators :@connection, :close, :reconnect, :use, :noreply_wait
 
   # TODO: Pass some methods to @table for fulfillment
   #       filter, get, get_all, between, eq_join,
   #       inner_join, outer_join
+  def_delegators :@table, :filter, :get, :get_all, :between, :eq_join,
+                          :inner_join, :outer_join
 
   # TODO: Limited to one table per instance, consider
   #       support for multiple table per db support;
@@ -98,7 +105,7 @@ class RethinkdbHelper
     r.wait(options).run
   end
 
-  def connect(options={host: @options[:host],port: @options[:port]})
+  def connect(options={host: @options[:host], port: @options[:port]})
     r.connect(options).repl
   end
 
@@ -111,9 +118,9 @@ class RethinkdbHelper
   alias :db_delete :db_drop
   alias :delete_db :db_drop
 
-  def use(db_name=@options[:db])
-    @connection.use(db_name)
-  end
+  #def use(db_name=@options[:db])
+  #  @connection.use(db_name)
+  #end
 
   def db(db_name=@options[:db])
     @db = r.db(db_name)
@@ -130,7 +137,7 @@ class RethinkdbHelper
   def sync
     @table.sync.run
   end
-  alise :flush :sync
+  alias :flush :sync
 
 
   def table_create(table_name=@ooptions[:table], options={})
@@ -204,8 +211,8 @@ class RethinkdbHelper
     @table.get(key).run
   end
 
-  def get_all_keys(*keys, options={})
-    @table.get_all(keys.flatten, options).run
+  def get_all_keys(keys, options={})
+    @table.get_all([keys].flatten, options).run
   end
 
   def get_between_keys(lower_key, upper_key, options={})
@@ -215,13 +222,14 @@ class RethinkdbHelper
 
 
   def join(foreign_key, table_name,options={})
-    @table('players').eq_join(foreign_key,
+    @table.eq_join(foreign_key,
       r.table(table_name), options).without({:right => "id"}).zip().run
   end
 
   # payloads is an array of hashes or a single
   # hash document.
-  def insert(*payloads, options={})
+  def insert(payloads, options={})
+    payloads = [payloads].flatten
     raise 'No document provided' if payloads.empty?
     invalid_payloads = false
     payloads.map{|doc| invalid_payloads &&= !doc.is_a?(Hash)}
@@ -249,9 +257,9 @@ class RethinkdbHelper
           run
   end
 
-  def close
-    @connection.close
-  end
+  #def close
+  #  @connection.close
+  #end
 
 end # class RethinkdbHelper
 
