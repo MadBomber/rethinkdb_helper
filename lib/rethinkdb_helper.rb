@@ -5,6 +5,7 @@
 ##  By:   Dewayne VanHoozer (dvanhoozer@gmail.com)
 #
 # TODO: Review the nobrainer gem to see if this stuff is moot
+# TODO: Reorganize the methods into separate files within lib
 #
 
 require 'forwardable'
@@ -29,15 +30,10 @@ class RethinkdbHelper
   #       connect, db, table
   #def_delegators :r, :connect, :db, :table
 
-  # TODO: Pass some methods to @commection for fulfillment
-  #       close, reconnect, use, noreply_wait
   def_delegators :@connection, :close, :reconnect, :use, :noreply_wait
 
-  # TODO: Pass some methods to @table for fulfillment
-  #       filter, get, get_all, between, eq_join,
-  #       inner_join, outer_join
   def_delegators :@table, :filter, :get, :get_all, :between, :eq_join,
-                          :inner_join, :outer_join
+                          :inner_join, :outer_join, :index_create
 
   # TODO: Limited to one table per instance, consider
   #       support for multiple table per db support;
@@ -140,7 +136,7 @@ class RethinkdbHelper
   alias :flush :sync
 
 
-  def table_create(table_name=@ooptions[:table], options={})
+  def table_create(table_name=@options[:table], options={})
     @table = r.table_create(table_name, options).run
   end
   alias :create_table :table_create
@@ -160,6 +156,11 @@ class RethinkdbHelper
   def db_exist?(db_name=@options[:db])
     db_list.include?(db_name)
   end
+
+  def db_create(db_name=@options[:db])
+    @db = r.db_create(db_name).run
+  end
+  alias :create_db :db_create
 
   def db_list
     r.db_list.run
@@ -182,10 +183,9 @@ class RethinkdbHelper
   alias :wait_for_index :index_wait
   alias :wait_index     :index_wait
 
-  def index_create(index_name, index_function=nil, options={})
-    @table.index_create(index_name, index_funciton, options).run
+  def create_simple_index(field_name)
+    @table.index_create(field_name.to_s).run
   end
-  alias :create_index :index_create
 
   def index_list
     @table.index_list.run
@@ -198,6 +198,11 @@ class RethinkdbHelper
   alias :drop_inde    :index_drop
   alias :delete_index :index_drop
   alias :index_delete :index_drop
+
+  def index_wait(index_name)
+    @table.index_wait(index_name).run
+  end
+  alias :wait_on_index :index_wait
 
   def drop?
     @options[:drop]
