@@ -146,7 +146,7 @@ class RethinkdbHelper
     @db.table_drop(table_name)
   end
   alias :drop_table   :table_drop
-  alias :elete_table  :table_drop
+  alias :delete_table :table_drop
   alias :table_delete :table_drop
 
   def changes(options={})
@@ -195,7 +195,7 @@ class RethinkdbHelper
   def index_drop(index_name)
     @table.index_drop(index_name).run
   end
-  alias :drop_inde    :index_drop
+  alias :drop_index   :index_drop
   alias :delete_index :index_drop
   alias :index_delete :index_drop
 
