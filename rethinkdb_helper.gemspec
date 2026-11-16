@@ -15,6 +15,7 @@ Gem::Specification.new do |spec|
     rethinkdb.  Its my conventions which are subject to change at a momments
     notice.  I would not use this gem if I were you.}
   spec.homepage      = "https://github.com/MadBomber/rethinkdb_helper"
+  spec.required_ruby_version = ">= 4.0"
   spec.license       = "You want it?  It's yours."
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
